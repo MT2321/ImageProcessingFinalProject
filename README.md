@@ -24,7 +24,7 @@ end
 
 subgraph Feature Extraction
 F[Color Histogram] --> X
-G[VGG16 Latent Space] -->X
+G[VGG11 Latent Space] -->X
 X[Concat features]-->D
 end
 ```
