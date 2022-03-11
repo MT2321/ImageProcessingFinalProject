@@ -650,5 +650,5 @@ class BroadBoxDetector:
         # os.remove(img_name)
         plt.show()
         plt.close(f)
-
-        return
+        print(self.process_history)
+        return self.process_history
