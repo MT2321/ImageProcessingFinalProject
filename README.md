@@ -85,9 +85,7 @@ Finally, just crop the images. We made sure to keep track of the parent-child re
 # Feature extraction
 In order to clusterize the ads we need to extract some kind of feature vector that allows us to compare them.
 Such feature vector, in our case, is composed of the concatention of the **feature space output** of a pretrained VGG11 model and a **color histogram**.
-In this manner we are to combine both classic and sota approached towards the computation of a feature vector.
-
-Technically it is not necessary to to include the color histogram but the course requires to solve this problem with a classic approach.
+In this manner we are to combine both classic and sota approaches towards the computation of a rich feature vector.
 # Clustering and Classification
 
 We trained a Nearest Neighbors classifier in order to find where does the same ad appear.
