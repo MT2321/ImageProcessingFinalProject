@@ -636,6 +636,7 @@ class BroadBoxDetector:
                 [box],
                 color=colors[counter % len(colors)]
             )
+        self.process_history["final_result"] = image_with_boxes
         if not show_history:
             ax.set_title("Frame with boxes")
             ax.imshow(image_with_boxes)
