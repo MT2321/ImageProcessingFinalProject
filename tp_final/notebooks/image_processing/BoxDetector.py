@@ -259,14 +259,12 @@ class BroadBoxDetector:
         x = cv.Canny(x, self.thc_low, self.thc_high, L2gradient=False)
         self.process_history["step 2 canny"] = x.copy()
 
-        # x = self.auto_canny(x)
         x = cv.dilate(x, self.ero_dil_kernel, iterations=1)
         self.process_history["step 3 dilate"] = x.copy()
 
         x = cv.erode(x, self.ero_dil_kernel, iterations=1)
         self.process_history["step 4 erode"] = x.copy()
 
-        # ret, x = cv.threshold(x, 0, 255, cv.THRESH_BINARY)
         return x
 
     def add_border(self, gray_image, offset, thickness=1):
@@ -284,7 +282,11 @@ class BroadBoxDetector:
         img_gray_gauss = cv.GaussianBlur(img_gray, (5, 5), 0)
         # apply automatic Canny edge detection using the computed median
         canny_image = self.auto_canny(img_gray_gauss)
-        h, v, merged = bxu.split_image(canny_image)
+        h, v, merged, jhl, jhlx, jvl, jvlx = bxu.split_image(canny_image)
+        self.process_history["just horizontal lines"] = jhl
+        self.process_history["just horizontal lines extended"] = jhlx
+        self.process_history["just vertical lines"] = jvl
+        self.process_history["just vertical lines extended"] = jvlx
         return h, v, merged
 
     def auto_canny(self, image):
@@ -334,16 +336,9 @@ class BroadBoxDetector:
         cnt = cv.approxPolyDP(countour, epsilon, True)
         if 4 <= len(cnt) < self.max_polig:
             boundRect_temp = cv.boundingRect(cnt)
-            # print(boundRect_temp)
             bb_center_x, bb_center_y = get_box_center(boundRect_temp)
             is_centered = np.abs(bb_center_x - center_x) < radius_x_th
-            # print("--------------")
-            # print(f"y_coor {bb_center_y}")
-            # print(f"y_th {y_th}")
             is_low = bb_center_y > y_th
-            # print(f"x_center {bb_center_x}")
-            # print(f"is_centered {is_centered}")
-            # print(f"is_low {is_low}")
             if is_centered and is_low:
                 if (
                     image_area * 0.10
@@ -351,14 +346,11 @@ class BroadBoxDetector:
                     < image_area * 0.20
                 ):
                     zocalo = boundRect_temp
-            # area_prop = bxu.rect_area(zocalo) / image_area
-            # print(f"ara_prop {area_prop}")
-            # print("--------------")
 
         return zocalo
 
-    def find_all_boxes(self, image, search_object, use_hierachy=True):
-        "Receives already pp image"
+    def find_all_boxes(self, image, search_object, use_hierachy=False):
+        "Receives already preprocessed image"
         if search_object == "box":
             contours, hierarchies = cv.findContours(
                 image, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE
@@ -498,8 +490,6 @@ class BroadBoxDetector:
 
             new_found_boxes = []
             for box in found_boxes:
-                # print(f"len boxes {len(box)}")
-                # print(f"len discarded {len(discarded_boxes)}")
                 if box not in discarded_boxes:
                     new_found_boxes.append(box)
         return new_found_boxes
@@ -525,9 +515,6 @@ class BroadBoxDetector:
 
         blue = (255, 255, 0)
         for counter, box in enumerate(self.all_boxes):
-            # print(
-            #     f"duration {box['duration_secs']} || confidence  {box['confidence']} || ar  {box['aspect_ratio']}"
-            # )
             f, ax = plt.subplots(1, 5, figsize=(30, 4))
             for i in range(5):
                 ax[i].axes.xaxis.set_visible(False)
@@ -620,7 +607,7 @@ class BroadBoxDetector:
             for ax, step in zip(axes, self.process_history.keys()):
                 ax.axes.xaxis.set_visible(False)
                 ax.axes.yaxis.set_visible(False)
-                ax.set_title(step,  fontsize=160)
+                ax.set_title(step,  fontsize=100)
                 ax.imshow(self.process_history[step])
 
         for counter, box in enumerate(self.raw_boxes):
@@ -639,11 +626,12 @@ class BroadBoxDetector:
         self.process_history["final_result"] = image_with_boxes
         if not show_history:
             ax.set_title("Frame with boxes")
+            ax.set_title(step,  fontsize=100)
             ax.imshow(image_with_boxes)
         else:
-            axes[-2].set_title("Frame with raw boxes", fontsize=200)
+            axes[-2].set_title("Frame with raw boxes", fontsize=100)
             axes[-2].imshow(image_with_raw_boxes)
-            axes[-1].set_title("Frame with boxes", fontsize=200)
+            axes[-1].set_title("Frame with boxes", fontsize=100)
             axes[-1].imshow(image_with_boxes)
 
         # img_name = img_name.replace("/", "")

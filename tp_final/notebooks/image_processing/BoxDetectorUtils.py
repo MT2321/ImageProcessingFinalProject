@@ -341,6 +341,17 @@ class BoxDetectorUtils:
         assert iou <= 1.0
         return iou
 
+    @staticmethod
+    def get_bgr_hist(bgr_image, mask=None, bins=64):
+        B_hist = np.reshape(cv.calcHist(
+            [bgr_image], [0], mask, [bins], [0, 180]), -1)
+        G_hist = np.reshape(cv.calcHist(
+            [bgr_image], [1], mask, [bins], [0, 180]), -1)
+        R_hist = np.reshape(cv.calcHist(
+            [bgr_image], [2], mask, [bins], [0, 180]), -1)
+        bgr_hist = np.hstack((B_hist, G_hist, R_hist))
+        return bgr_hist
+
     # Similarity measurements
     @staticmethod
     def get_hue_hist(bgr_image, hsv_image, box=None, bins=64):
@@ -448,21 +459,23 @@ class BoxDetectorUtils:
         horizontal_mask = cv.morphologyEx(
             image, cv.MORPH_OPEN, horizontal_kernel, iterations=2
         )
+        jhl = horizontal_mask.copy()
         horizontal_mask = cv.dilate(
             horizontal_mask, horizontal_kernel, iterations=10)
-
+        jhlx = horizontal_mask.copy()
         # Obtain vertical lines mask
         vertical_kernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 30))
         vertical_mask = cv.morphologyEx(
             image, cv.MORPH_OPEN, vertical_kernel, iterations=2
         )
+        jvl = vertical_mask.copy()
         vertical_mask = cv.dilate(
             vertical_mask, vertical_kernel, iterations=10)
-
+        jvlx = vertical_mask.copy()
         # Combine vertical and horizontal lines
         merged = cv.bitwise_or(vertical_mask, horizontal_mask)
 
-        return horizontal_mask, vertical_mask, merged
+        return horizontal_mask, vertical_mask, merged, jhl, jhlx, jvl, jvlx
 
     def flatten_list(array):
         flat_list = [item for sublist in array for item in sublist]
@@ -489,3 +502,5 @@ class BoxDetectorUtils:
                 similarities[hash_name]["similarity"] < hasher["threshold"]
             )
         return similarities
+
+
