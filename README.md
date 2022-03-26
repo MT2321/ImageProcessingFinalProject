@@ -102,22 +102,18 @@ H-->P
 ```
 
 Applying the **Open** operation we get
-<p align="center">
-Horizontal segments             |  Extended
-:-------------------------:|:-------------------------:
-<img src="/results/just horizontal lines.jpg" width="300" />  |  <img src="/results/just horizontal lines extended.jpg" width="300">
 
-</p>
+
+|                     Horizontal segments                      |                              Extended                               |
+| :----------------------------------------------------------: | :-----------------------------------------------------------------: |
+| <img src="/results/just horizontal lines.jpg" width="300" /> | <img src="/results/just horizontal lines extended.jpg" width="300"> |
+
 
 After applying the **dilation** operation we get
 
-<p align="center">
-Vertical segments             |  Extended
-:-------------------------:|:-------------------------:
-<img src="/results/just vertical lines.jpg" width="300" />  |  <img src="/results/just vertical lines extended.jpg" width="300">
-
-</p>
-
+|                     Vertical segments                      |                             Extended                              |
+| :--------------------------------------------------------: | :---------------------------------------------------------------: |
+| <img src="/results/just vertical lines.jpg" width="300" /> | <img src="/results/just vertical lines extended.jpg" width="300"> |
 ## Let's add them 😄!
 
 <p align="center">
