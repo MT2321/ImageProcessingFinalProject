@@ -1,4 +1,4 @@
-a# Image Processing FinalProject
+# Image Processing FinalProject
 The goal of this project is to identify and classify a certain type of tv ad.
 
 <p align="center">
