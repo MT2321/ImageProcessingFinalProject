@@ -120,10 +120,9 @@ After applying the **dilation** operation we get
 <img src="/results/step 4 vh lines.jpg" width="300" />
 </p>
 
-Removing all unwanted edges allows us to focus only in the polygons of interest. We can now see clearly two rectangles.
+Removing all unwanted edges allows us to focus only in the polygons of interest. We can now clearly see two rectangles.
 
-Using OpenCV tools to find polygons we set ourselves to find rectangles.
-
+With the aid of the OpenCV tools we cand find all the polygons present in the image.
 ```mermaid
 graph TD
 A[1.Find Contours]-->B[2.Approximate Contour to a Rectangles]-->C{3.Too many edges?}
