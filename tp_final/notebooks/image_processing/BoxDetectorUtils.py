@@ -350,6 +350,7 @@ class BoxDetectorUtils:
         R_hist = np.reshape(cv.calcHist(
             [bgr_image], [2], mask, [bins], [0, 180]), -1)
         bgr_hist = np.hstack((B_hist, G_hist, R_hist))
+        bgr_hist = (bgr_hist/np.max(bgr_hist))*0.25
         return bgr_hist
 
     # Similarity measurements
@@ -502,5 +503,4 @@ class BoxDetectorUtils:
                 similarities[hash_name]["similarity"] < hasher["threshold"]
             )
         return similarities
-
 

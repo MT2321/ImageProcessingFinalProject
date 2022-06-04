@@ -1,10 +1,17 @@
 # Image Processing Final Project
 The goal of this project is to identify and classify a certain type of tv ad.
+<p align="center">
+<img src="/assets/imgs/26.jpg" width="150" />
+<img src="/assets/imgs/27.jpg" width="150" />
+<img src="/assets/imgs/30.jpg" width="150" />
+<img src="/assets/imgs/25.jpg" width="150" />
+</p>
 
+In particular we desire to extract and cluster those rectangular ads that can be seen at the bottom to perform classification.
 <p align="center">
 <img src="/assets/imgs/25.jpg" width="300" />
 </p>
-In particular we desire to extract and classify those rectangular ads that can be seen at the bottom.
+
 
 ####  Here we present an overview of the project
 ```mermaid
@@ -18,12 +25,12 @@ end
 C-->F
 C-->G
 subgraph Clustering
-    D[NNClassifier]
+    D[Nearest Neighbours]
 end
 
 subgraph Feature Extraction
 F[Color Histogram] --> X
-G[VGG11 Latent Space] -->X
+G[VGG16 Latent Space] -->X
 X[Concat features]-->D
 end
 ```
@@ -74,9 +81,9 @@ We split the image into its horizontal and vertical components by performing an 
 # create kernel
 vertical_kernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 30))
 # extract largest vertical segments
-vertical_mask = cv.morphologyEx(binary_image, cv.MORPH_OPEN vertical_kernel, iterations=2)
+vertical_segments = cv.morphologyEx(binary_image, cv.MORPH_OPEN, vertical_kernel, iterations=2)
 # Extend those segments
-vertical_mask = cv.dilate(vertical_mask, vertical_kernel, iterations=10)
+vertical_segments_extended = cv.dilate(vertical_segments, vertical_kernel, iterations=10)
 ```
 The same procedure is applied for the horizontal components
 
@@ -84,19 +91,22 @@ The same procedure is applied for the horizontal components
 ```mermaid
 graph LR
     A[Binary Image]
+
     subgraph Horizontal
-    C[Horizontal Open]-->D[Dilation]-->X[Horizontal Lines Image]
+    C[Horizontal Open]-->D[Dilation]
     end
+
     subgraph Vertical
-    F[Vertical Open]-->G[Dilation]-->Y[Vertical Lines Image]
+    F[Vertical Open]-->G[Dilation]
     end
+
     H[Add]
     P[Box Extraction]
 
 A-->C
 A-->F
-X-->H
-Y-->H
+D-->H
+G-->H
 H-->P
 
 ```
@@ -125,27 +135,30 @@ Removing all unwanted edges allows us to focus only in the polygons of interest.
 With the aid of the OpenCV tools we cand find all the polygons present in the image.
 ```mermaid
 graph TD
-A[1.Find Contours]-->B[2.Approximate Contour to a Rectangles]-->C{3.Too many edges?}
-C-->|no| D[Discarded]
-C-->|yes| E{4.Too big or too small?}
-E-->|yes| X[Discarded]
-E -->|perfect size!| Y[5.Succes! Return Bounding Box]
+A[1.Find Contours]-->B{2.Too many edges?}
+B-->|no| D[Discarded]
+B-->|yes|T[3.Approximate Contour to a Rectangles]
+-->C{4.Too big or too small?}
+C-->|bad size| X[Discarded]
+C -->|perfect size!| Y[5.Succes! Return Bounding Box]
 ```
 
 Read the following section to gain further understading of the steps involved.
 
-__Step 1:__ Find all contours
+**Find all contours**
 ```python
 contours, hierarchies = cv.findContours(
                 image, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE
             )
 ```
-__Step 2:__ Approximate Contour to a Rectangles
+
+**Approximate Valid contours to a Rectangles**
 ```python
 epsilon = 0.05 * cv.arcLength(countour, True)
 cnt = cv.approxPolyDP(countour, epsilon, True)
 ```
-__Step 3 and 4:__ Discard complex shapes and remove contours with extreme surface area, either too big or too small.
+
+**Discard complex shapes** and remove contours with extreme surface area, either too big or too small.
 If the contour meets this criteria then we make approximate that contour as a rectangle and save the extracted bounding box 👍
 ```python
 if 4 <= len(cnt) < self.max_polig:
@@ -154,7 +167,6 @@ if 4 <= len(cnt) < self.max_polig:
         if low_area_th < bxu.rect_area(boundRect_temp) < high_area_th:
             box = boundRect_temp
 ```
-
 
 
 <p align="center">
@@ -174,9 +186,18 @@ Finally, just crop the images. We made sure to keep track of the parent-child re
 ---
 # Feature extraction
 In order to clusterize the ads we need to extract some kind of feature vector that allows us to compare them.
-Such feature vector, in our case, is composed of the concatention of the **feature space output** of a pretrained VGG11 model and a **color histogram**.
+Such feature vector, in our case, is composed of the concatention of the **feature space output** of a pretrained VGG16 model and a **color histogram**.
 In this manner we are to combine both classic and sota approaches towards the computation of a rich feature vector.
 # Clustering and Classification
+
+There are many methods we considered to compare images and perform clustering.
+- Pixel by Pixel comparison
+- Matched Filters
+- Color Histogram
+- Tradition Perceptual Hashes (PHash, CHash, BMHash)
+- Feature Vector extraction with pre-trained CNN
+
+After thoroughly reviewing each of these options we opted to use the CNN approach as it provides the richest source of information for each image and allows blazing-fast comparisons between them.
 
 We trained a Nearest Neighbors classifier in order to find where does the same ad appear.
 
@@ -187,5 +208,12 @@ The euclidean metric was used to determine similarity.
 <p align="center">
 <img src="/results/clustered/13.jpg" width="500" />
 </p>
+<p align="center">
+<img src="/tp_final/display_imgs/disp_img_2.jpg" width="500" />
+</p>
+<p align="center">
+<img src="/tp_final/display_imgs/disp_img_3.jpg" width="500" />
+</p>
 
 In this example, we see the **DENIM MARKET** ad appearing in all those images
+
