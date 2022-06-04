@@ -111,17 +111,15 @@ H-->P
 
 ```
 
-Applying the **Open** operation we get
+After applying the **Open** operation followed by a  **dilation** we get
 
 
-|                     Horizontal segments                      |                              Extended                               |
+|                     Horizontal segments (open)                      |                              Extended (dilate)                               |
 | :----------------------------------------------------------: | :-----------------------------------------------------------------: |
 | <img src="/results/just horizontal lines.jpg" width="300" /> | <img src="/results/just horizontal lines extended.jpg" width="300"> |
 
 
-After applying the **dilation** operation we get
-
-|                     Vertical segments                      |                             Extended                              |
+|                     Vertical segments (open)                      |                             Extended (dilate)                              |
 | :--------------------------------------------------------: | :---------------------------------------------------------------: |
 | <img src="/results/just vertical lines.jpg" width="300" /> | <img src="/results/just vertical lines extended.jpg" width="300"> |
 ## Let's add them 😄!
